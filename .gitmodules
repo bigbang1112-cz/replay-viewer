@@ -1,0 +1,3 @@
+[submodule "MapViewerEngine"]
+	path = MapViewerEngine
+	url = https://github.com/bigbang1112-cz/map-viewer-engine
