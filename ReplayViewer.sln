@@ -3,7 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.4.33205.214
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReplayViewer", "ReplayViewer\ReplayViewer.csproj", "{60C0C142-C2C1-49B2-8AE7-0061D8EEE0C1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ReplayViewer", "ReplayViewer\ReplayViewer.csproj", "{60C0C142-C2C1-49B2-8AE7-0061D8EEE0C1}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MapViewerEngine", "MapViewerEngine\MapViewerEngine\MapViewerEngine.csproj", "{9E72BBC4-DBA0-4B2D-B934-26EAD69182F1}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GbxToolAPI", "MapViewerEngine\GbxToolAPI\GbxToolAPI\GbxToolAPI.csproj", "{1517112D-6D1E-4F94-A6AB-F8421849BB95}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +19,14 @@ Global
 		{60C0C142-C2C1-49B2-8AE7-0061D8EEE0C1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{60C0C142-C2C1-49B2-8AE7-0061D8EEE0C1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{60C0C142-C2C1-49B2-8AE7-0061D8EEE0C1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9E72BBC4-DBA0-4B2D-B934-26EAD69182F1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9E72BBC4-DBA0-4B2D-B934-26EAD69182F1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9E72BBC4-DBA0-4B2D-B934-26EAD69182F1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9E72BBC4-DBA0-4B2D-B934-26EAD69182F1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1517112D-6D1E-4F94-A6AB-F8421849BB95}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1517112D-6D1E-4F94-A6AB-F8421849BB95}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1517112D-6D1E-4F94-A6AB-F8421849BB95}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1517112D-6D1E-4F94-A6AB-F8421849BB95}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
