@@ -1,5 +1,12 @@
-﻿namespace ReplayViewer;
+﻿using GBX.NET.Engines.Game;
+using MapViewerEngine;
 
-public class ReplayViewerTool
+namespace ReplayViewer;
+
+public class ReplayViewerTool : MapViewerEngineTool
 {
+    public ReplayViewerTool(CGameCtnReplayRecord replay) : base(replay.Challenge ?? throw new Exception("No map found"))
+    {
+        
+    }
 }
