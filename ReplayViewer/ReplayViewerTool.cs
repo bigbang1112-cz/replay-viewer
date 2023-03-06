@@ -1,8 +1,11 @@
 ﻿using GBX.NET.Engines.Game;
+using GbxToolAPI;
 using MapViewerEngine;
 
 namespace ReplayViewer;
 
+[ToolName("Replay Viewer")]
+[ToolDescription("View replays in a web browser.")]
 public class ReplayViewerTool : MapViewerEngineTool
 {
     private readonly CGameCtnChallenge map;
