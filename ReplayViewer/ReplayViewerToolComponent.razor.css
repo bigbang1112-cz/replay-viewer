@@ -1,0 +1,13 @@
+.bar {
+    position: absolute;
+    left: 50%;
+    bottom: 20%;
+    transform: translate(-50%, 0);
+}
+
+.play {
+    font-weight: bold;
+    text-align: center;
+    cursor: pointer;
+    display: flex;
+}

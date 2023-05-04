@@ -6,20 +6,22 @@ namespace ReplayViewer;
 
 [ToolName("Replay Viewer")]
 [ToolDescription("View replays in a web browser.")]
+[ToolGitHub("bigbang1112-cz/replay-viewer", NoExe = true)]
 public class ReplayViewerTool : MapViewerEngineTool
 {
     private readonly CGameCtnChallenge map;
-    private readonly IEnumerable<CGameCtnGhost> ghosts;
-    private readonly CGameCtnReplayRecord? replay;
+    
+    public IEnumerable<CGameCtnGhost> Ghosts { get; }
+    public CGameCtnReplayRecord? Replay { get; }
+
+    public ReplayViewerTool(CGameCtnReplayRecord replay) : this(replay.Challenge ?? throw new Exception("No map found"), replay.GetGhosts())
+    {
+        Replay = replay;
+    }
 
     public ReplayViewerTool(CGameCtnChallenge map, IEnumerable<CGameCtnGhost> ghosts) : base(map)
     {
         this.map = map;
-        this.ghosts = ghosts;
-    }
-
-    public ReplayViewerTool(CGameCtnReplayRecord replay) : this(replay.Challenge ?? throw new Exception("No map found"), replay.GetGhosts())
-    {
-        this.replay = replay;
+        Ghosts = ghosts;
     }
 }

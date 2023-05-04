@@ -1,0 +1,270 @@
+@using GBX.NET.Engines.Game;
+@using GBX.NET.Engines.Scene;
+@using GBX.NET;
+@using MapViewerEngine.Modules;
+@using System.Runtime.InteropServices.JavaScript;
+@using ReplayViewer.Modules;
+@using ReplayViewer.Tweens;
+
+@inherits ToolComponentBase
+@implements IAsyncDisposable
+
+@inject MapViewerEngineHubConnection HubConnection
+@inject HttpClient Http
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
+<MapViewerEngineToolComponent @ref="mapViewerEngineComponent"
+                              Route="@Route"
+                              Configs="@Configs"
+                              GbxSelection="GetGbxSelectionForMapViewerEngine()"
+                              ImportTypes="@ImportTypes"
+                              ProceedType="selected"
+                              QueryParameters="@QueryParameters"
+                              BeforeMapLoaded="BeforeMapLoadedAsync"
+                              AutoStart="false">
+    <div class="bar">
+        <div class="rectangle play" @onclick="PlayOrPause" oncontextmenu="event.preventDefault()">
+            @if (!isPlaying || isPaused)
+            {
+                <img src="_content/ReplayViewer/img/play.svg" width="64" alt="Play" />
+            }
+            else
+            {
+                <img src="_content/ReplayViewer/img/pause.svg" width="64" alt="Pause" />
+            }
+        </div>
+    </div>
+</MapViewerEngineToolComponent>
+
+@code {
+    private MapViewerEngineToolComponent? mapViewerEngineComponent;
+    private CGameCtnReplayRecord? replay;
+
+    private Timer? timer;
+    private JSObject? timeline;
+
+    private bool isPlaying;
+    private bool isPaused;
+
+    [Parameter]
+    [EditorRequired]
+    public required ReplayViewerTool? Tool { get; set; }
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+
+        if (authState.User.Identity is null)
+        {
+            return;
+        }
+
+        await base.OnParametersSetAsync();
+
+        switch (ProceedType.ToLowerInvariant())
+        {
+            case "selected":
+                replay = this.GbxSelection.FirstOrDefault()?.Object?.Node as CGameCtnReplayRecord;
+                break;
+            case "mx":
+                if (!QueryParameters.TryGetValue("site", out string? site))
+                {
+                    throw new Exception("Missing site query parameter");
+                }
+
+                if (!QueryParameters.TryGetValue("replayid", out string? replayId))
+                {
+                    throw new Exception("Missing replayid query parameter");
+                }
+
+                using (var response = await Http.GetAsync($"api/v1/mx/replay/{site}/{replayId}"))
+                {
+                    if (response.IsSuccessStatusCode)
+                    {
+                        using var stream = await response.Content.ReadAsStreamAsync();
+                        replay = GameBox.ParseNode<CGameCtnReplayRecord>(stream);
+                    }
+                }
+                break;
+            default:
+                break;
+        }
+
+        if (replay is null)
+        {
+            return;
+        }
+
+        Tool = new ReplayViewerTool(replay) { HubConnection = HubConnection };
+
+        if (mapViewerEngineComponent is not null)
+        {
+            await mapViewerEngineComponent.StartAsync(Tool);
+        }
+    }
+
+    private async Task BeforeMapLoadedAsync()
+    {
+        if (Tool is null)
+        {
+            throw new Exception("Tool is null");
+        }
+
+        await JSHost.ImportAsync(nameof(Vehicle), "../_content/ReplayViewer/js/vehicle.js");
+
+        var vehicleName = (string)Tool.Map.Collection switch
+        {
+            "Speed" => "DesertCar",
+            "Alpine" => "SnowCar",
+            _ => (string)Tool.Map.Collection + "Car"
+        };
+
+        var firstGhost = Tool.Ghosts.FirstOrDefault();
+
+        if (firstGhost is null)
+        {
+            return;
+        }
+
+        if (!HubConnection.Started)
+        {
+            await HubConnection.StartAsync();
+        }
+
+        var vehicleData = await HubConnection.InvokeVehicleAsync(vehicleName);
+
+        var ghost = await Solid.ParseAsync(vehicleData.Data, 1);
+        Renderer.AddToScene(ghost);
+
+        if (firstGhost.SampleData is null)
+        {
+            return;
+        }
+
+        var firstSample = firstGhost.SampleData.Samples.FirstOrDefault();
+
+        if (firstSample is null)
+        {
+            return;
+        }
+
+        Solid.SetTreePos(ghost, firstSample.Position.X, firstSample.Position.Y, firstSample.Position.Z);
+        Solid.SetTreeQuat(ghost, firstSample.Rotation.X, firstSample.Rotation.Y, firstSample.Rotation.Z, firstSample.Rotation.W);
+
+        Cam.ChangeDistance(8);
+        Cam.SetTarget(firstSample.Position.X, firstSample.Position.Y, firstSample.Position.Z, true);
+        Cam.LockTo(ghost);
+
+        timeline = BuildTimeline(firstGhost, ghost,
+            new VehiclePosition(),
+            new VehicleQuaternion(),
+            new VehicleWheelFLRotation(),
+            new VehicleWheelFRRotation(),
+            new VehicleWheelRLRotation(),
+            new VehicleWheelRRRotation());
+    }
+
+    private void PlayOrPause()
+    {
+        if (isPlaying)
+        {
+            if (isPaused)
+            {
+                Resume();
+            }
+            else
+            {
+                Pause();
+            }
+
+            isPaused = !isPaused;
+        }
+        else
+        {
+            Play();
+
+            isPlaying = !isPlaying;
+        }
+    }
+
+    private void Play()
+    {
+        if (timeline is not null)
+        {
+            Timeline.Play(timeline);
+        }
+    }
+
+    private void Resume()
+    {
+        if (timeline is not null)
+        {
+            Timeline.Play(timeline);
+        }
+    }
+
+    private void Pause()
+    {
+        if (timeline is not null)
+        {
+            Timeline.Pause(timeline);
+        }
+    }
+
+    private JSObject? BuildTimeline(CGameCtnGhost ghost, JSObject ghostJS, params Animation[] animations)
+    {
+        if (ghost.SampleData is null)
+        {
+            return null;
+        }
+
+        var samples = ghost.SampleData.Samples.Cast<CSceneVehicleCar.Sample>().ToArray();
+        var samplePeriod = ghost.SampleData.SamplePeriod.TotalMilliseconds;
+
+        var jsAnimations = new JSObject[animations.Length];
+
+        for (var i = 0; i < animations.Length; i++)
+        {
+            var animation = animations[i];
+            var keyframes = new JSObject[samples.Length];
+
+            for (var j = 0; j < samples.Length; j++)
+            {
+                keyframes[j] = animation.CreateKeyframe(samplePeriod, samples[j]);
+            }
+
+            jsAnimations[i] = Timeline.CreateAnimation(animation.GetMember(ghostJS), keyframes);
+        }
+
+        return Timeline.Create(jsAnimations);
+    }
+
+    private HashSet<GbxModel> GetGbxSelectionForMapViewerEngine()
+    {
+        var map = replay?.Challenge is null
+            ? GbxSelection.FirstOrDefault(x => x.Object?.Node is CGameCtnChallenge)
+            : new GbxModel("", replay.Challenge.ToGbx());
+
+        if (map is null)
+        {
+            return new HashSet<GbxModel>();
+        }
+
+        return new HashSet<GbxModel>() { map };
+    }
+
+    protected override async ValueTask DisposeAsync(bool disposing)
+    {
+        if (Tool is not null)
+        {
+            Tool.Dispose();
+        }
+
+        await base.DisposeAsync(disposing);
+    }
+}
