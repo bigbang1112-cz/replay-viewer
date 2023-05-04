@@ -33,14 +33,20 @@
                 <img src="_content/ReplayViewer/img/pause.svg" width="64" alt="Pause" />
             }
         </div>
+
+        @if (timeline is not null)
+        {
+            <ReplayViewer.Components.Slider @ref="slider" Timeline="timeline"></ReplayViewer.Components.Slider>
+        }
+        
     </div>
 </MapViewerEngineToolComponent>
 
 @code {
     private MapViewerEngineToolComponent? mapViewerEngineComponent;
+    private ReplayViewer.Components.Slider? slider;
     private CGameCtnReplayRecord? replay;
 
-    private Timer? timer;
     private JSObject? timeline;
 
     private bool isPlaying;
@@ -263,6 +269,11 @@
         if (Tool is not null)
         {
             Tool.Dispose();
+        }
+
+        if (slider is not null)
+        {
+            await slider.DisposeAsync();
         }
 
         await base.DisposeAsync(disposing);

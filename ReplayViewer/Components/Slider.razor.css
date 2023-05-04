@@ -1,0 +1,16 @@
+﻿.slider-wrap {
+    display: flex;
+    align-items: center;
+}
+
+.slider {
+    width: 500px;
+    margin: 20px;
+    position: relative;
+}
+
+.slider-handle {
+    position: absolute;
+    transform: translate(-75%, -50%);
+    height: 90px;
+}

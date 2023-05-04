@@ -1,0 +1,52 @@
+﻿@using System.Runtime.InteropServices.JavaScript;
+@using System.Globalization;
+
+<div class="slider-wrap">
+    <div class="rectangle slider">
+        <div class="rectangle slider-handle" style="left: @(Progress.ToString(CultureInfo.InvariantCulture))%"></div>
+    </div>
+</div>
+
+@code {
+    private Timer? timer;
+
+    public double Progress { get; set; }
+
+    [Parameter]
+    public JSObject? Timeline { get; set; }
+
+    protected override void OnInitialized()
+    {
+        timer = new Timer(TimerCallback, null, 0, 100);
+    }
+
+    protected void TimerCallback(object? state)
+    {
+        Progress = Timeline is null ? 0 : Timeline.GetPropertyAsDouble("progress");
+        StateHasChanged();
+    }
+
+    private void HandleMouseDown()
+    {
+        if (Timeline is not null)
+        {
+            MapViewerEngine.Modules.Timeline.Pause(Timeline);
+        }
+    }
+
+    private void HandleMouseUp()
+    {
+        if (Timeline is not null)
+        {
+            MapViewerEngine.Modules.Timeline.Play(Timeline);
+        }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (timer is not null)
+        {
+            await timer.DisposeAsync();
+        }
+    }
+}

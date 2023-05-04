@@ -1,4 +1,6 @@
 .bar {
+    display: flex;
+    gap: 10px;
     position: absolute;
     left: 50%;
     bottom: 20%;
