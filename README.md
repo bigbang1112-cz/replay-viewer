@@ -6,4 +6,12 @@ Replay Viewer is an online tool that allows viewing Trackmania replays inside yo
 
 It uses the [Map Viewer Engine](https://github.com/bigbang1112-cz/map-viewer-engine) tool and THREE.js under the hood.
 
+## Direct TMX link support
+
+```
+https://gbx.bigbang1112.cz/tool/replay-viewer?proceed=mx?site=tmuf&replayid=123456
+```
+
+## Demonstration
+
 ![Replay Viewer Web UI](ReplayViewerWebUI.jpg "ReplayViewerWebUI")
