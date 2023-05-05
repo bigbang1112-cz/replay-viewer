@@ -4,6 +4,6 @@ Hosted on [Gbx Web Tools](https://github.com/bigbang1112-cz/gbx), lives on [Gbx 
 
 Replay Viewer is an online tool that allows viewing replays inside your web browser (includes PC and phone).
 
-It uses the Map Viewer Engine tool and THREE.js under the hood.
+It uses the [Map Viewer Engine](https://github.com/bigbang1112-cz/map-viewer-engine) tool and THREE.js under the hood.
 
 ![Replay Viewer Web UI](ReplayViewerWebUI.jpg "ReplayViewerWebUI")
