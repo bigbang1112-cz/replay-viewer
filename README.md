@@ -1,3 +1,5 @@
+### DEPRECATED! See http://3d.gbx.tools/view/replay
+
 # Replay Viewer [(online)](https://gbx.bigbang1112.cz/tool/replay-viewer)
 
 Hosted on [Gbx Web Tools](https://github.com/bigbang1112-cz/gbx), lives on [Gbx Tool API](https://github.com/bigbang1112-cz/gbx-tool-api), internally powered by [GBX.NET](https://github.com/BigBang1112/gbx-net).
